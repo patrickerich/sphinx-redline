@@ -4,10 +4,10 @@ sphinx-redline
 .. warning::
 
    **Experimental — not yet recommended for real documentation projects.**
-   Commenting works end to end on GitHub and can be tried out (see
-   :doc:`fork_tutorial`), but sphinx-redline is new, has not been released on
-   PyPI, and its settings and comment file format may still change. GitLab
-   support has not been tested against a real GitLab instance yet.
+   Commenting works end to end on GitHub and on a local GitLab, and can be
+   tried out (see :doc:`fork_tutorial`), but sphinx-redline is new, has not
+   been released on PyPI, and its settings and comment file format may still
+   change.
    The :doc:`roadmap` lists what is done and what comes next.
 
 sphinx-redline is a Sphinx extension for review comments on documentation, in

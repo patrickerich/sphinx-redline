@@ -67,6 +67,10 @@ only blocks force-pushes and deletion: the browser commits to it directly.
   Chromium-family browser via the DevTools protocol, forge requests
   intercepted. Skipped if no browser is found; set `REDLINE_BROWSER` to pick
   one. GitHub's Ubuntu runners have Chrome, so it runs in CI.
+- `tests/test_gitlab.py` + `tests/gitlab/`: both GitLab sign-in modes, saving
+  and building against a real local GitLab CE in podman. Run `make gitlab-up`
+  (writes the git-ignored `.gitlab-test.env`), then `make test`; skipped
+  without it, so never in CI. `make gitlab-down` removes it all.
 
 ## Layout
 
@@ -80,4 +84,4 @@ only blocks force-pushes and deletion: the browser commits to it directly.
 | `pyproject.toml`       | Package metadata and runtime dependencies             |
 | `requirements.txt`     | Development environment: editable install plus pinned tools |
 | `sourceme.sh`          | Creates and activates the project `.venv`             |
-| `Makefile`             | `test`, `docs`, `docs-serve`, `docs-preview`, `docs-clean`, `docs-<builder>` |
+| `Makefile`             | `test`, `gitlab-up`/`gitlab-down`, `docs`, `docs-serve`, `docs-preview`, `docs-clean`, `docs-<builder>` |

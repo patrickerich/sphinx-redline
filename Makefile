@@ -24,6 +24,13 @@ test: ## run the pytest suite
 	$(VENV_CHECK)
 	@$(VENV_PY) -m pytest
 
+# A local GitLab for tests/test_gitlab.py, which `make test` then includes.
+gitlab-up: ## start and provision a local GitLab in podman (first start: minutes)
+	@tests/gitlab/gitlab.sh up
+
+gitlab-down: ## remove the local GitLab container, its volumes and settings
+	@tests/gitlab/gitlab.sh down
+
 docs: ## build the Sphinx documentation into docs/build/html
 	$(VENV_CHECK)
 	@$(SPHINXBUILD) -M html "$(DOCS_SOURCE_DIR)" "$(DOCS_BUILD_DIR)" $(SPHINXOPTS)
@@ -48,4 +55,4 @@ docs-%: ## run Sphinx builder <builder> as docs-<builder>, e.g. docs-linkcheck
 	$(VENV_CHECK)
 	@$(SPHINXBUILD) -M $* "$(DOCS_SOURCE_DIR)" "$(DOCS_BUILD_DIR)" $(SPHINXOPTS)
 
-.PHONY: help test docs docs-serve docs-preview docs-clean
+.PHONY: help test gitlab-up gitlab-down docs docs-serve docs-preview docs-clean
