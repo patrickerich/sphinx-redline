@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sphinx-redline"
-version = "0.1.0"
+version = "0.1.1"
 description = "Sphinx extension for inline review comments anchored to the RST/Markdown source"
 readme = "README.md"
 license = "Apache-2.0"
