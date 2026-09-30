@@ -1,0 +1,10 @@
+# Development environment: the extension itself (editable) plus pinned tools
+# for building the documentation and running the tests. Installed into .venv
+# by `source ./sourceme.sh`, which re-installs whenever this file or
+# pyproject.toml changes.
+-e .
+Sphinx==9.1.0
+furo==2025.12.19
+sphinx-copybutton==0.5.2
+sphinx-autobuild==2025.8.25
+pytest==9.0.3

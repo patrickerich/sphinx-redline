@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sphinx-redline"
+version = "0.1.0.dev0"
+description = "Sphinx extension for inline review comments anchored to the RST/Markdown source"
+readme = "README.md"
+# Sphinx 9.1 itself requires Python 3.12. The lower bounds follow the versions
+# that are actually tested; relax them once CI covers older releases.
+requires-python = ">=3.12"
+dependencies = [
+    "Sphinx>=9.1",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
