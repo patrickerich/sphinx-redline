@@ -1,6 +1,8 @@
 name: docs
 
-# Merging a PR into main is a push to main, so this deploys on merge.
+# Merging a PR into main is a push to main, so this deploys on merge. A new
+# comment on the redline branch starts this workflow via workflow_dispatch
+# (see rebuild-docs.yml on that branch).
 on:
   push:
     branches:
@@ -35,8 +37,16 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
+      # Full history: the build follows each comment from the commit it was
+      # made on to today's sources with git diff.
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      # Comments live on the redline branch; a fork may not have one yet.
+      - name: Fetch comments
+        run: git fetch --no-tags origin redline:refs/remotes/origin/redline || echo "No comments branch"
 
       - name: Setup Python
         uses: actions/setup-python@v6
@@ -52,6 +62,9 @@ jobs:
       # fails here.
       - name: Build documentation
         shell: bash
+        env:
+          # Encrypted guest token (see docs/source/setup.rst); empty = read-only.
+          REDLINE_GUEST_KEY: ${{ vars.REDLINE_GUEST_KEY }}
         run: |
           source ./sourceme.sh
           make docs

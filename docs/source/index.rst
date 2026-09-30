@@ -3,9 +3,10 @@ sphinx-redline
 
 .. warning::
 
-   **Work in progress — not usable yet.** The extension currently only loads
-   into Sphinx; it does not add any commenting features. Do not use it for real
-   documentation projects yet. The :doc:`roadmap` shows what is done and what
+   **Experimental.** Commenting works end to end on GitHub, but sphinx-redline
+   is new, has not been released on PyPI, and its settings and comment file
+   format may still change. "Sign in with GitLab" has not been tried against a
+   real GitLab instance yet. The :doc:`roadmap` lists what is done and what
    comes next.
 
 sphinx-redline is a Sphinx extension for review comments on documentation, in
@@ -24,11 +25,18 @@ page, but they anchor comments to the HTML output only. Comments are orphaned
 when the text changes and nothing links them back to the source that has to be
 edited. :doc:`design` explains how sphinx-redline approaches this.
 
+Try it: the :doc:`example` has a comment on it, and :doc:`fork_tutorial`
+shows how to add your own comments on a fork of this repository in about
+fifteen minutes.
+
 sphinx-redline is licensed under the Apache License 2.0. It is provided "as
 is", without warranty of any kind; use it at your own risk.
 
 .. toctree::
    :maxdepth: 2
 
+   example
+   fork_tutorial
+   setup
    design
    roadmap

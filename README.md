@@ -1,8 +1,8 @@
 # sphinx-redline
 
-> **Work in progress — not usable yet.** The extension currently only loads
-> into Sphinx; it does not add any commenting features. See the
-> [roadmap](https://patrickerich.github.io/sphinx-redline/roadmap.html) for progress.
+> **Experimental.** Commenting works end to end on GitHub, but the project
+> is new, not yet on PyPI, and its settings may still change. See the
+> [roadmap](https://patrickerich.github.io/sphinx-redline/roadmap.html).
 
 A Sphinx extension for Word-style review comments on your documentation.
 Readers highlight text in the built HTML and leave a comment; each comment is
@@ -10,7 +10,9 @@ anchored to the RST/Markdown source file and line and follows its text as the
 source changes. Comments are stored as files in git and saved through your git
 forge (GitHub or GitLab), so no extra service is needed.
 
-Documentation: <https://patrickerich.github.io/sphinx-redline/>
+Documentation: <https://patrickerich.github.io/sphinx-redline/> — including
+an [example comment](https://patrickerich.github.io/sphinx-redline/example.html)
+and a [tutorial to try it on your own fork](https://patrickerich.github.io/sphinx-redline/fork_tutorial.html).
 
 ## Quick start (development)
 
