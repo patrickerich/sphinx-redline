@@ -57,8 +57,9 @@ class CommentAnchorer:
     #. Look for the quoted text in the block now at those lines, then in the
        other blocks from the same source file, then anywhere on the page.
        Several occurrences are told apart by the text around the quote.
-    #. If there is no exact match, accept a close match in the blocks from
-       the same source file.
+    #. If there is no exact match, accept a close match, but only in the
+       block now at those lines: elsewhere a short quote would too easily
+       match unrelated text.
     #. Otherwise the thread is outdated.
     """
 
@@ -93,7 +94,7 @@ class CommentAnchorer:
             match = self._best(self._exact_matches(anchor, tier))
             if match is not None:
                 return self._anchored(match)
-        match = self._best(self._fuzzy_matches(anchor, expected + same_source))
+        match = self._best(self._fuzzy_matches(anchor, expected))
         if match is not None:
             return self._anchored(match)
 
@@ -112,14 +113,7 @@ class CommentAnchorer:
         file_diff = diff.file(anchor.source)
         if file_diff is None:
             return anchor.source, anchor.lines
-        if file_diff.new_path is None:
-            return None, None
-        mapped = [
-            line
-            for line in (file_diff.map_line(n) for n in range(anchor.lines[0], anchor.lines[1] + 1))
-            if line is not None
-        ]
-        return file_diff.new_path, (min(mapped), max(mapped)) if mapped else None
+        return file_diff.new_path, file_diff.map_range(*anchor.lines)
 
     @staticmethod
     def _overlaps(block: Block, source: str | None, lines: tuple[int, int] | None) -> bool:

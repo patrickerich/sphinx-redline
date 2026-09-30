@@ -57,6 +57,34 @@ class FileDiff:
             delta += hunk.new_count - hunk.old_count
         return line + delta
 
+    def map_range(self, first: int, last: int) -> tuple[int, int] | None:
+        """Map a line range of the old file to the region it now occupies.
+
+        Unchanged lines map to their new position. Lines that were edited map
+        to the whole block of lines that replaced them, since that is where
+        the edited text now is.
+
+        Args:
+            first: First line of the range in the old file (1-based).
+            last: Last line of the range in the old file.
+
+        Returns:
+            The new ``(first, last)`` range, or ``None`` if every line of the
+            range was deleted.
+        """
+        if self.new_path is None:
+            return None
+        mapped: list[int] = []
+        for line in range(first, last + 1):
+            new_line = self.map_line(line)
+            if new_line is not None:
+                mapped.append(new_line)
+                continue
+            for hunk in self.hunks:
+                if hunk.old_start <= line < hunk.old_start + hunk.old_count and hunk.new_count:
+                    mapped += [hunk.new_start, hunk.new_start + hunk.new_count - 1]
+        return (min(mapped), max(mapped)) if mapped else None
+
 
 class DiffIndex:
     """All file changes between one commit and the working tree."""

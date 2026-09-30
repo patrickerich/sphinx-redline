@@ -45,11 +45,14 @@ def test_comments_are_placed_and_follow_edits(git_project: GitProject, build) ->
         comment("t1", "some words", lines=[4, 4], commit=commit, prefix="paragraph with ")
     )
     git_project.add_comment(comment("t2", "gone text", lines=[8, 8], commit=commit))
+    git_project.add_comment(
+        comment("t3", "A note that mentions words", lines=[8, 8], commit=commit)
+    )
     # Insert lines above the commented paragraph and reword the note.
     git_project.write(
         "index.rst",
         INDEX.replace("==========\n", "==========\n\nIntro.\n\nMore intro.\n").replace(
-            "mentions words too", "says something else"
+            "mentions words too", "mentions some words too"
         ),
     )
     git_project.commit()
@@ -62,6 +65,9 @@ def test_comments_are_placed_and_follow_edits(git_project: GitProject, build) ->
     assert moved["quote"] == "some words"
     assert page_data(app)["blocks"][moved["block"]]["lines"] == [8, 8]
     assert threads["t2"]["placement"]["state"] == "outdated"
+    # The note line was edited; a close match on the replacing line still anchors.
+    edited = threads["t3"]["placement"]
+    assert (edited["state"], edited["quote"]) == ("anchored", "A note that mentions some words")
 
 
 def test_comment_text_cannot_break_out_of_the_script(git_project: GitProject, build) -> None:

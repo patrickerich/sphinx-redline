@@ -53,3 +53,16 @@ def test_rename_deletion_and_addition() -> None:
     assert gone is not None and gone.new_path is None and gone.map_line(1) is None
     assert index.file("docs/added.rst") is None
     assert index.file("docs/unchanged.rst") is None
+
+
+def test_map_range_follows_edits_and_drops_deletions() -> None:
+    index = DiffIndex.parse(DIFF)
+    diff = index.file("docs/a.rst")
+    assert diff is not None
+    assert diff.map_range(1, 2) == (1, 2)
+    assert diff.map_range(10, 11) == (12, 12)  # edited: the replacing line
+    assert diff.map_range(9, 10) == (11, 12)
+    gone = index.file("docs/gone.rst")
+    assert gone is not None and gone.map_range(1, 2) is None
+    deleted = FileDiff("x", "x", [Hunk(old_start=5, old_count=2, new_start=4, new_count=0)])
+    assert deleted.map_range(5, 6) is None

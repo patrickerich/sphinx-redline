@@ -1,0 +1,212 @@
+/* sphinx-redline. Colours fall back to the furo theme's variables when present. */
+
+.redline-ui {
+  --redline-bg: var(--color-background-primary, #fff);
+  --redline-fg: var(--color-foreground-primary, #1f2328);
+  --redline-muted: var(--color-foreground-secondary, #59636e);
+  --redline-border: var(--color-background-border, #d0d7de);
+  --redline-accent: var(--color-brand-primary, #0969da);
+  --redline-error: #cf222e;
+  font-family: var(--font-stack, system-ui, sans-serif);
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: var(--redline-fg);
+}
+
+@media (prefers-color-scheme: dark) {
+  .redline-ui {
+    --redline-error: #ff7b72;
+  }
+}
+
+mark.redline-mark {
+  background: rgba(255, 196, 0, 0.35);
+  color: inherit;
+  border-bottom: 2px solid rgba(230, 160, 0, 0.9);
+  cursor: pointer;
+  padding: 0;
+}
+
+mark.redline-mark.redline-resolved {
+  background: rgba(128, 128, 128, 0.15);
+  border-bottom-color: rgba(128, 128, 128, 0.6);
+}
+
+.redline-toggle,
+.redline-add {
+  position: fixed;
+  z-index: 1000;
+  border: 1px solid var(--redline-border);
+  border-radius: 999px;
+  background: var(--redline-bg);
+  color: var(--redline-fg);
+  padding: 0.4rem 0.9rem;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.redline-toggle {
+  right: 1rem;
+  bottom: 1rem;
+}
+
+.redline-add {
+  position: absolute;
+  background: var(--redline-accent);
+  border-color: var(--redline-accent);
+  color: #fff;
+}
+
+.redline-panel {
+  position: fixed;
+  z-index: 1001;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(24rem, 100vw);
+  overflow-y: auto;
+  background: var(--redline-bg);
+  border-left: 1px solid var(--redline-border);
+  box-shadow: -4px 0 16px rgba(0, 0, 0, 0.12);
+  padding: 0 1rem 2rem;
+  box-sizing: border-box;
+}
+
+.redline-panel[hidden],
+.redline-add[hidden],
+.redline-status[hidden] {
+  display: none;
+}
+
+.redline-header {
+  position: sticky;
+  top: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  background: var(--redline-bg);
+  border-bottom: 1px solid var(--redline-border);
+}
+
+.redline-panel h3 {
+  font-size: 0.95rem;
+  margin: 1.25rem 0 0.25rem;
+}
+
+.redline-panel p {
+  margin: 0.5rem 0;
+}
+
+.redline-panel button {
+  font: inherit;
+  cursor: pointer;
+  border: 1px solid var(--redline-border);
+  border-radius: 0.3rem;
+  background: var(--redline-bg);
+  color: var(--redline-fg);
+  padding: 0.2rem 0.6rem;
+}
+
+.redline-panel button[type="submit"],
+.redline-panel .redline-oauth {
+  background: var(--redline-accent);
+  border-color: var(--redline-accent);
+  color: #fff;
+}
+
+.redline-panel .redline-link {
+  border: none;
+  padding: 0;
+  background: none;
+  color: var(--redline-accent);
+  text-decoration: underline;
+}
+
+.redline-panel form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0.5rem 0;
+}
+
+.redline-panel input,
+.redline-panel textarea {
+  font: inherit;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.3rem 0.4rem;
+  border: 1px solid var(--redline-border);
+  border-radius: 0.3rem;
+  background: var(--redline-bg);
+  color: var(--redline-fg);
+}
+
+.redline-status {
+  color: var(--redline-muted);
+}
+
+.redline-status.redline-error {
+  color: var(--redline-error);
+}
+
+.redline-hint,
+.redline-empty,
+.redline-meta,
+.redline-panel time {
+  color: var(--redline-muted);
+  font-size: 0.85em;
+}
+
+.redline-quote {
+  margin: 0 0 0.3rem;
+  padding: 0.1rem 0.5rem;
+  border-left: 3px solid rgba(230, 160, 0, 0.9);
+  color: var(--redline-muted);
+  cursor: pointer;
+  white-space: pre-wrap;
+}
+
+.redline-thread {
+  border: 1px solid var(--redline-border);
+  border-radius: 0.4rem;
+  padding: 0.6rem;
+  margin: 0.75rem 0;
+  transition: box-shadow 0.3s;
+}
+
+.redline-thread-resolved {
+  opacity: 0.7;
+}
+
+.redline-flash {
+  box-shadow: 0 0 0 3px var(--redline-accent);
+}
+
+.redline-comments {
+  list-style: none;
+  margin: 0.4rem 0 0;
+  padding: 0;
+}
+
+.redline-comments li + li {
+  border-top: 1px solid var(--redline-border);
+  margin-top: 0.4rem;
+  padding-top: 0.4rem;
+}
+
+.redline-author {
+  font-weight: 600;
+}
+
+.redline-body {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.redline-draft {
+  border: 1px dashed var(--redline-accent);
+  border-radius: 0.4rem;
+  padding: 0 0.6rem;
+  margin: 0.75rem 0;
+}
