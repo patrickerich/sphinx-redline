@@ -42,6 +42,15 @@ branch that is up to date with `main`. Work on a branch, open a PR with
 `gh pr create`, and merge once CI is green. The `redline` branch (comments)
 only blocks force-pushes and deletion: the browser commits to it directly.
 
+## Releasing
+
+Like corejack: a `release/vX.Y.Z` PR bumps `version` in `pyproject.toml`; after
+it merges, tag the merge commit with an annotated tag (`git tag -a vX.Y.Z`),
+push it, and publish a GitHub release "sphinx-redline vX.Y.Z" for it.
+Publishing the release runs `.github/workflows/release.yml`, which checks the
+tag matches the version and uploads to PyPI through Trusted Publishing (the
+`pypi` environment accepts only `v*` tags).
+
 ## How it fits together
 
 - Build side (Python, `src/sphinx_redline/`): `blocks.py` marks commentable
@@ -80,7 +89,7 @@ only blocks force-pushes and deletion: the browser commits to it directly.
 | `tests/`               | pytest suite, Node unit tests (`js/`) and the browser test (`e2e/`) |
 | `docs/source/`         | This project's documentation, built with the extension enabled |
 | `docs/build/`          | Build output (ignored by git)                         |
-| `.github/workflows/`   | `test.yml`: pytest on Python 3.12 and 3.13; `docs.yml`: build docs on PRs, publish to GitHub Pages on `main` |
+| `.github/workflows/`   | `test.yml`: pytest on 3.12/3.13; `docs.yml`: docs to GitHub Pages; `release.yml`: PyPI upload on a GitHub release |
 | `pyproject.toml`       | Package metadata and runtime dependencies             |
 | `requirements.txt`     | Development environment: editable install plus pinned tools |
 | `sourceme.sh`          | Creates and activates the project `.venv`             |

@@ -3,8 +3,8 @@ Setting up
 
 .. warning::
 
-   sphinx-redline is experimental. The comment file format and the settings
-   below may still change, and it has not been released on PyPI yet.
+   sphinx-redline is an early alpha release. The comment file format and the
+   settings below may still change.
 
 Setting up commenting for a documentation project has four parts:
 
@@ -16,11 +16,11 @@ Setting up commenting for a documentation project has four parts:
 Install
 -------
 
-Until there is a release, install from GitHub:
+Install it from PyPI:
 
 .. code-block:: bash
 
-   pip install git+https://github.com/patrickerich/sphinx-redline
+   pip install sphinx-redline
 
 sphinx-redline needs Python 3.12 or newer and Sphinx 9.1 or newer. It works
 with the HTML builders (``html`` and ``dirhtml``); other builders, such as

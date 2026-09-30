@@ -19,13 +19,13 @@ Done
 -  Both GitLab sign-in modes tested end to end against a local GitLab CE.
 -  A live example comment and the :doc:`fork_tutorial`.
 -  Markdown sources (MyST), covered by tests.
+-  First alpha release, 0.1.0, on PyPI.
 
 Next
 ----
 
 -  Try both GitLab sign-in modes on gitlab.com and in real use.
 -  Keep comments when a page is renamed.
--  A first release on PyPI.
 
 Not planned for now
 -------------------

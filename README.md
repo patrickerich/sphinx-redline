@@ -2,8 +2,8 @@
 
 > **Experimental — not yet recommended for real documentation projects.**
 > Commenting works end to end on GitHub and on a local GitLab, and can be
-> tried out on a fork, but the project is new, not yet on PyPI, and its
-> settings may still change. See
+> tried out on a fork, but this is an early alpha release: its settings and
+> comment file format may still change. See
 > the [roadmap](https://patrickerich.github.io/sphinx-redline/roadmap.html).
 
 A Sphinx extension for Word-style review comments on your documentation.
@@ -15,6 +15,16 @@ forge (GitHub or GitLab), so no extra service is needed.
 Documentation: <https://patrickerich.github.io/sphinx-redline/> — including
 an [example comment](https://patrickerich.github.io/sphinx-redline/example.html)
 and a [tutorial to try it on your own fork](https://patrickerich.github.io/sphinx-redline/fork_tutorial.html).
+
+## Install
+
+```bash
+pip install sphinx-redline
+```
+
+Then add `"sphinx_redline"` to `extensions` in `conf.py`; the
+[setup guide](https://patrickerich.github.io/sphinx-redline/setup.html)
+covers where comments are stored and how readers sign in.
 
 ## Quick start (development)
 
@@ -31,6 +41,6 @@ takes effect when `.venv` does not exist yet; delete it to switch.
 
 ## License
 
-[Apache License 2.0](LICENSE). The software is provided "as is", without
+[Apache License 2.0](https://github.com/patrickerich/sphinx-redline/blob/main/LICENSE). The software is provided "as is", without
 warranty of any kind; use it at your own risk. See sections 7 (Disclaimer of
 Warranty) and 8 (Limitation of Liability) of the license.

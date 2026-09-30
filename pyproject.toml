@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sphinx-redline"
-version = "0.1.0.dev0"
+version = "0.1.0"
 description = "Sphinx extension for inline review comments anchored to the RST/Markdown source"
 readme = "README.md"
 license = "Apache-2.0"
@@ -15,6 +15,23 @@ requires-python = ">=3.12"
 dependencies = [
     "Sphinx>=9.1",
 ]
+keywords = ["sphinx", "documentation", "review", "comments", "annotation"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Framework :: Sphinx",
+    "Framework :: Sphinx :: Extension",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Documentation :: Sphinx",
+]
+
+[project.urls]
+Documentation = "https://patrickerich.github.io/sphinx-redline/"
+Source = "https://github.com/patrickerich/sphinx-redline"
+Issues = "https://github.com/patrickerich/sphinx-redline/issues"
 
 [tool.setuptools.packages.find]
 where = ["src"]
