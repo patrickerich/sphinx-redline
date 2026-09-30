@@ -149,3 +149,4 @@ def test_comment_ui_end_to_end(served_site) -> None:
     assert threads["t1"] == ["resolved", False, True]
     assert threads[saved["id"]] == ["open", True, True]
     assert out["afterReload"]["signedIn"] == "Erin"
+    assert out["keytool"] == "github_pat_example"

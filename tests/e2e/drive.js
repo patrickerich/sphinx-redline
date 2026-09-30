@@ -183,6 +183,19 @@ async function main() {
       threads: Redline.app.threads.map(t => [t.id, t.status, Boolean(t.pending), t.located]),
       signedIn: Redline.app.user?.author ?? null,
     })`);
+
+    // The keytool page creates a key that decrypts back to the token.
+    const loaded = new Promise((resolve) => page.on("Page.loadEventFired", resolve));
+    await page.send("Page.navigate", { url: new URL("_static/redline/keytool.html", pageUrl).href });
+    await loaded;
+    await page.eval(`(() => {
+      document.getElementById("token").value = "github_pat_example";
+      document.getElementById("generate").click();
+      document.getElementById("create").requestSubmit();
+    })()`);
+    await page.waitFor(`!document.getElementById("result").hidden`, 30000);
+    out.keytool = await page.eval(`Redline.GuestKey.decrypt(
+      document.getElementById("key").value, document.getElementById("passphrase").value)`);
   } catch (error) {
     out.error = String(error.stack || error);
     out.debug = await page.eval(`({
@@ -196,7 +209,12 @@ async function main() {
       proc.on("exit", resolve);
       proc.kill();
     });
-    fs.rmSync(profile, { recursive: true, force: true, maxRetries: 5 });
+    try {
+      // Helper processes may still write to the profile briefly after exit.
+      fs.rmSync(profile, { recursive: true, force: true, maxRetries: 10, retryDelay: 200 });
+    } catch (error) {
+      // Best effort: it is a temporary directory.
+    }
   }
   console.log(JSON.stringify(out));
   process.exit(0);

@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>sphinx-redline guest key tool</title>
+<style>
+  :root { color-scheme: light dark; --fg: #1f2328; --bg: #fff; --muted: #59636e; --border: #d0d7de; --accent: #0969da; --error: #cf222e; }
+  @media (prefers-color-scheme: dark) {
+    :root { --fg: #e6edf3; --bg: #0d1117; --muted: #9198a1; --border: #3d444d; --accent: #4493f8; --error: #ff7b72; }
+  }
+  body { font: 16px/1.5 system-ui, sans-serif; color: var(--fg); background: var(--bg); max-width: 42rem; margin: 2rem auto; padding: 0 1rem; }
+  label { display: block; font-weight: 600; margin-top: 1rem; }
+  input, textarea { font: inherit; width: 100%; box-sizing: border-box; padding: 0.4rem; border: 1px solid var(--border); border-radius: 0.3rem; background: var(--bg); color: var(--fg); }
+  textarea { font-family: ui-monospace, monospace; font-size: 0.85rem; }
+  button { font: inherit; margin-top: 0.75rem; padding: 0.4rem 1rem; border-radius: 0.3rem; border: 1px solid var(--accent); background: var(--accent); color: #fff; cursor: pointer; }
+  button.secondary { background: var(--bg); color: var(--accent); }
+  .hint { color: var(--muted); font-size: 0.9rem; margin: 0.25rem 0; }
+  .error { color: var(--error); }
+  .row { display: flex; gap: 0.5rem; align-items: end; }
+  .row input { flex: 1; }
+</style>
+</head>
+<body>
+<h1>Guest key tool</h1>
+<p>
+  Encrypts a GitHub or GitLab token with a passphrase, for the
+  <code>redline_guest_key</code> setting of sphinx-redline. Guests who know
+  the passphrase can then comment on your documentation.
+</p>
+<p class="hint">
+  Everything happens in this page: the token and passphrase are not sent
+  anywhere. The resulting key is published in every page of your site, so
+  anyone can try to guess the passphrase offline. Use a long one, and a token
+  that can only write to the comments repository.
+</p>
+
+<form id="create">
+  <label for="token">Token</label>
+  <input id="token" type="password" required autocomplete="off" placeholder="github_pat_… or glpat-…">
+  <p class="hint">A fine-grained GitHub token with <em>Contents: read and write</em> on the comments repository only, or a GitLab project access token with the <em>api</em> scope and the Developer role.</p>
+
+  <label for="passphrase">Passphrase</label>
+  <div class="row">
+    <input id="passphrase" type="text" required minlength="16" autocomplete="off">
+    <button type="button" class="secondary" id="generate">Generate</button>
+  </div>
+  <p class="hint">At least 16 characters. Share it with the people who may comment.</p>
+
+  <button type="submit">Create guest key</button>
+</form>
+
+<div id="result" hidden>
+  <label for="key">Guest key</label>
+  <textarea id="key" rows="4" readonly></textarea>
+  <p class="hint">Put it in <code>conf.py</code>, for example
+    <code>redline_guest_key = os.environ.get("REDLINE_GUEST_KEY")</code> with the key stored as a
+    CI variable. It is safe to publish, as long as the passphrase is strong.</p>
+</div>
+<p id="status" class="hint" role="status"></p>
+
+<script src="redline.js"></script>
+<script>
+  "use strict";
+  const $ = (id) => document.getElementById(id);
+  const status = (text, isError) => {
+    $("status").textContent = text;
+    $("status").className = isError ? "hint error" : "hint";
+  };
+
+  $("generate").addEventListener("click", () => {
+    const alphabet = "abcdefghijkmnpqrstuvwxyz23456789";
+    const bytes = Redline.Bytes.random(24);
+    const chars = Array.from(bytes, (b) => alphabet[b % alphabet.length]).join("");
+    $("passphrase").value = chars.match(/.{6}/g).join("-");
+  });
+
+  $("create").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    status("Encrypting… (this takes a moment on purpose)");
+    try {
+      const token = $("token").value.trim();
+      const passphrase = $("passphrase").value;
+      const key = await Redline.GuestKey.encrypt(token, passphrase);
+      if ((await Redline.GuestKey.decrypt(key, passphrase)) !== token) {
+        throw new Error("The key did not decrypt back to the token.");
+      }
+      $("key").value = key;
+      $("result").hidden = false;
+      status("Done. The key was checked by decrypting it again.");
+    } catch (error) {
+      status(`Failed: ${error.message}`, true);
+    }
+  });
+</script>
+</body>
+</html>

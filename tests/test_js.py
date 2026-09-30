@@ -24,9 +24,9 @@ def run_node(code: str) -> str:
 
 
 def test_node_unit_tests() -> None:
-    result = subprocess.run(
-        [NODE, "--test", str(ROOT / "tests/js")], capture_output=True, text=True, check=False
-    )
+    # Explicit files: newer Node versions no longer accept a directory here.
+    files = sorted(str(p) for p in (ROOT / "tests/js").glob("*.test.js"))
+    result = subprocess.run([NODE, "--test", *files], capture_output=True, text=True, check=False)
     assert result.returncode == 0, result.stdout + result.stderr
 
 
