@@ -32,6 +32,13 @@ on:
 permissions:
   contents: read
 
+# A newer publishing run supersedes an older one: it has the newest sources
+# and the newest comments, so letting an older run deploy last would hide
+# comments. Pull request builds only check, each in its own group.
+concurrency:
+  group: docs-${{ github.event_name == 'pull_request' && github.ref || 'publish' }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -85,10 +92,6 @@ jobs:
       contents: read
       pages: write
       id-token: write
-    # Serialise deploys so two quick merges cannot race.
-    concurrency:
-      group: pages
-      cancel-in-progress: false
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

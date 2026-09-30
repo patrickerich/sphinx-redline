@@ -1052,7 +1052,9 @@
         box.append(this._button("Sign in with GitLab", () => this.signInGitLab(), "redline-oauth"));
       }
       if (!box.childElementCount) {
-        box.append(el("p", { textContent: "No sign-in method is configured for this site." }));
+        box.append(
+          el("p", { textContent: "No sign-in method is configured for this site, so comments are read-only." })
+        );
       }
       return box;
     }
