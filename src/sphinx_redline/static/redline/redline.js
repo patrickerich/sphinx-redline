@@ -137,6 +137,9 @@
 
   /** Common request handling for the GitHub and GitLab APIs. */
   class Forge {
+    static ATTEMPTS = 3;
+    static RETRY_DELAY_MS = 400;
+
     constructor(settings, token, fetchImpl) {
       this.settings = settings;
       this.token = token;
@@ -146,6 +149,25 @@
     static create(settings, token, fetchImpl) {
       const Kind = settings.kind === "gitlab" ? GitLabForge : GitHubForge;
       return new Kind(settings, token, fetchImpl);
+    }
+
+    /**
+     * Commit a new file to the comments branch. Two commits to one branch at
+     * the same moment conflict (HTTP 409); since every comment is its own
+     * file, simply trying again a moment later succeeds.
+     */
+    async createFile(path, text, message) {
+      for (let attempt = 1; ; attempt++) {
+        try {
+          return await this._createFile(path, text, message);
+        } catch (error) {
+          if (error.status !== 409 || attempt >= Forge.ATTEMPTS) {
+            throw error;
+          }
+          const delay = Forge.RETRY_DELAY_MS * (0.5 + Math.random()) * attempt;
+          await new Promise((resolve) => setTimeout(resolve, delay));
+        }
+      }
     }
 
     async _request(method, url, body) {
@@ -197,7 +219,7 @@
       };
     }
 
-    createFile(path, text, message) {
+    _createFile(path, text, message) {
       const [owner, repo] = this.settings.repository.split("/");
       const encodedPath = path.split("/").map(encodeURIComponent).join("/");
       const url =
@@ -216,7 +238,7 @@
       return { Authorization: `Bearer ${this.token}` };
     }
 
-    createFile(path, text, message) {
+    _createFile(path, text, message) {
       const url =
         `${this.settings.apiUrl}/projects/${encodeURIComponent(this.settings.repository)}` +
         `/repository/files/${encodeURIComponent(path)}`;

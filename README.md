@@ -1,8 +1,10 @@
 # sphinx-redline
 
-> **Experimental.** Commenting works end to end on GitHub, but the project
-> is new, not yet on PyPI, and its settings may still change. See the
-> [roadmap](https://patrickerich.github.io/sphinx-redline/roadmap.html).
+> **Experimental — not yet recommended for real documentation projects.**
+> Commenting works end to end on GitHub and can be tried out on a fork, but
+> the project is new, not yet on PyPI, and its settings may still change.
+> GitLab support and Markdown sources are untested against real setups. See
+> the [roadmap](https://patrickerich.github.io/sphinx-redline/roadmap.html).
 
 A Sphinx extension for Word-style review comments on your documentation.
 Readers highlight text in the built HTML and leave a comment; each comment is

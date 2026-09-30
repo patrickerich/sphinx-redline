@@ -130,3 +130,25 @@ test("GitLab sign-in builds a PKCE authorize URL and exchanges the code", async 
   // A second visit to the redirect URL, or a forged state, does nothing.
   assert.equal(await new R.GitLabOAuth(GITLAB, store, back, fetch).complete(), null);
 });
+
+test("a conflicting save is retried, other errors are not", async () => {
+  R.Forge.RETRY_DELAY_MS = 1;
+  const statuses = [409, 201];
+  const calls = [];
+  const fetch = async (url, init) => {
+    calls.push(url);
+    const status = statuses.shift();
+    return { ok: status < 400, status, statusText: "x", json: async () => ({ message: "conflict" }) };
+  };
+  await R.Forge.create(GITHUB, "tok", fetch).createFile("comments/x.json", "", "m");
+  assert.equal(calls.length, 2);
+
+  const always = (status) => async () => ({ ok: false, status, statusText: "x", json: async () => ({}) });
+  let count = 0;
+  const counting = (status) => async (...args) => (count++, always(status)(...args));
+  await assert.rejects(R.Forge.create(GITHUB, "tok", counting(409)).createFile("c", "", "m"));
+  assert.equal(count, R.Forge.ATTEMPTS);
+  count = 0;
+  await assert.rejects(R.Forge.create(GITHUB, "tok", counting(422)).createFile("c", "", "m"));
+  assert.equal(count, 1);
+});

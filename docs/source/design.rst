@@ -19,7 +19,8 @@ Browser script
 Storage
    Comments are plain JSON files kept on a git branch, rather than in a
    database. Every comment and every reply is its own file, so two people
-   commenting at the same time never conflict.
+   commenting at the same time never edit the same file. (If their commits
+   collide, the browser simply tries again.)
 
 Anchoring comments to the source
 --------------------------------

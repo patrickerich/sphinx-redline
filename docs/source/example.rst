@@ -6,9 +6,9 @@ thread: click it to open the thread in the comment panel. The
 :guilabel:`Comments` button in the bottom right corner opens the panel too,
 including threads whose text has since changed.
 
-Sign-in on this site depends on how it is set up. On the upstream site the
-guest passphrase is not public, so the comment panel is read-only for most
-visitors. To add comments yourself, follow :doc:`fork_tutorial`.
+The upstream copy of this site has no sign-in configured, so its comment
+panel is read-only. To add comments yourself, follow :doc:`fork_tutorial`:
+on your own fork, you choose the passphrase.
 
 A paragraph to review
 ---------------------
