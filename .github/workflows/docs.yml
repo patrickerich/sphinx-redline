@@ -16,17 +16,11 @@ on:
       - 'sourceme.sh'
       - 'Makefile'
       - '.github/workflows/docs.yml'
+  # No path filter here: build is a required check for merging into main,
+  # and a check whose workflow is skipped would block the merge forever.
   pull_request:
     branches:
       - main
-    paths:
-      - 'docs/**'
-      - 'src/**'
-      - 'pyproject.toml'
-      - 'requirements.txt'
-      - 'sourceme.sh'
-      - 'Makefile'
-      - '.github/workflows/docs.yml'
   workflow_dispatch:
 
 permissions:

@@ -34,6 +34,14 @@ versions in `requirements.txt` are used even if another venv is active.
   test projects live in `tests/roots/test-<name>/`; projects that need git
   history are built with the `GitProject` fixture.
 
+## Workflow
+
+`main` is protected by a ruleset: changes go through a pull request, and the
+checks `pytest (3.12)`, `pytest (3.13)` and `build` (docs) must pass on a
+branch that is up to date with `main`. Work on a branch, open a PR with
+`gh pr create`, and merge once CI is green. The `redline` branch (comments)
+only blocks force-pushes and deletion: the browser commits to it directly.
+
 ## How it fits together
 
 - Build side (Python, `src/sphinx_redline/`): `blocks.py` marks commentable
