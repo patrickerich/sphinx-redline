@@ -40,6 +40,7 @@ versions in `requirements.txt` are used even if another venv is active.
 | `tests/`               | pytest suite; `tests/roots/test-*/` are Sphinx test projects |
 | `docs/source/`         | This project's documentation, built with the extension enabled |
 | `docs/build/`          | Build output (ignored by git)                         |
+| `.github/workflows/`   | `docs.yml`: build docs on PRs, publish to GitHub Pages on `main` |
 | `pyproject.toml`       | Package metadata and runtime dependencies             |
 | `requirements.txt`     | Development environment: editable install plus pinned tools |
 | `sourceme.sh`          | Creates and activates the project `.venv`             |
