@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "id": "20260930T065450Z-68d2d31c",
+  "thread": null,
+  "author": "sphinx-redline",
+  "auth": "example",
+  "created": "2026-09-30T06:54:50Z",
+  "body": "This is an example comment. It was saved through the GitHub API by the same code the comment panel uses, and lives as a JSON file on the redline branch of this repository. Select any text on this page to see how a new comment starts.",
+  "status": null,
+  "anchor": {
+    "docname": "example",
+    "source": "docs/source/example.rst",
+    "lines": [
+      16,
+      20
+    ],
+    "commit": "fd4611905c1570f8c56a8c2492e18f572db6ac79",
+    "quote": "striking out text, suggesting new wording and writing notes in the margin",
+    "prefix": "rking up a document for review: ",
+    "suffix": ". Reviewers of word processor do"
+  }
+}
