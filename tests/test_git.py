@@ -66,3 +66,21 @@ def test_map_range_follows_edits_and_drops_deletions() -> None:
     assert gone is not None and gone.map_range(1, 2) is None
     deleted = FileDiff("x", "x", [Hunk(old_start=5, old_count=2, new_start=4, new_count=0)])
     assert deleted.map_range(5, 6) is None
+
+
+def test_content_lines_that_look_like_headers_are_not_headers() -> None:
+    text = """\
+diff --git a/docs/a.rst b/docs/a.rst
+--- a/docs/a.rst
++++ b/docs/a.rst
+@@ -1,0 +2,2 @@
++++ /dev/null
++rename to docs/b.rst
+@@ -5 +7 @@
+-x
++y
+"""
+    diff = DiffIndex.parse(text).file("docs/a.rst")
+    assert diff is not None and diff.new_path == "docs/a.rst"
+    assert len(diff.hunks) == 2
+    assert diff.map_line(3) == 5

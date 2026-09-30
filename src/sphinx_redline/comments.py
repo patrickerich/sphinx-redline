@@ -23,7 +23,14 @@ class CommentFormatError(ValueError):
 
 
 class _Fields:
-    """Typed access to the fields of one decoded JSON object."""
+    """Typed, bounded access to the fields of one decoded JSON object.
+
+    Comment files are written by readers, so every field is checked for type
+    and size before the build uses it.
+    """
+
+    MAX_LINE = 10_000_000
+    MAX_LINE_SPAN = 10_000
 
     def __init__(self, data: Any, what: str) -> None:
         """Wrap a decoded JSON value that must be an object.
@@ -37,13 +44,36 @@ class _Fields:
         self._data = data
         self._what = what
 
-    def text(self, key: str, *, optional: bool = False, empty: bool = False) -> str | None:
-        """Return a string field; ``optional`` allows it to be missing or null."""
+    def text(
+        self,
+        key: str,
+        *,
+        optional: bool = False,
+        empty: bool = False,
+        limit: int | None = None,
+        pattern: re.Pattern[str] | None = None,
+    ) -> str | None:
+        """Return a string field.
+
+        Args:
+            key: The field name.
+            optional: Allow the field to be missing or null.
+            empty: Allow an empty string.
+            limit: Maximum length, if any.
+            pattern: A pattern the whole value must match, if any.
+
+        Returns:
+            The value, or ``None`` for a missing optional field.
+        """
         value = self._data.get(key)
         if value is None and optional:
             return None
         if not isinstance(value, str) or (not value and not empty):
             raise CommentFormatError(f"{self._what}: '{key}' must be a non-empty string")
+        if limit is not None and len(value) > limit:
+            raise CommentFormatError(f"{self._what}: '{key}' is longer than {limit} characters")
+        if pattern is not None and not pattern.fullmatch(value):
+            raise CommentFormatError(f"{self._what}: '{key}' has an invalid value")
         return value
 
     def lines(self, key: str) -> tuple[int, int] | None:
@@ -54,8 +84,9 @@ class _Fields:
         if (
             not isinstance(value, list)
             or len(value) != 2
-            or not all(isinstance(v, int) and not isinstance(v, bool) and v > 0 for v in value)
-            or value[0] > value[1]
+            or not all(isinstance(v, int) and not isinstance(v, bool) for v in value)
+            or not 0 < value[0] <= value[1] <= self.MAX_LINE
+            or value[1] - value[0] > self.MAX_LINE_SPAN
         ):
             raise CommentFormatError(f"{self._what}: '{key}' must be [first, last] line numbers")
         return value[0], value[1]
@@ -70,6 +101,12 @@ class _Fields:
 class Anchor:
     """Where a comment thread was made: the page, the source and the quoted text."""
 
+    MAX_QUOTE = 5000
+    MAX_CONTEXT = 200
+    MAX_PATH = 1000
+    # A commit id. Also keeps values that git would parse as options out of git calls.
+    COMMIT_PATTERN = re.compile(r"[0-9a-f]{7,64}")
+
     docname: str
     quote: str
     prefix: str
@@ -82,13 +119,13 @@ class Anchor:
     def from_fields(cls, fields: _Fields) -> Anchor:
         """Build an anchor from the ``anchor`` object of a comment file."""
         return cls(
-            docname=fields.text("docname"),
-            quote=fields.text("quote"),
-            prefix=fields.text("prefix", optional=True, empty=True) or "",
-            suffix=fields.text("suffix", optional=True, empty=True) or "",
-            source=fields.text("source", optional=True),
+            docname=fields.text("docname", limit=cls.MAX_PATH),
+            quote=fields.text("quote", limit=cls.MAX_QUOTE),
+            prefix=fields.text("prefix", optional=True, empty=True, limit=cls.MAX_CONTEXT) or "",
+            suffix=fields.text("suffix", optional=True, empty=True, limit=cls.MAX_CONTEXT) or "",
+            source=fields.text("source", optional=True, limit=cls.MAX_PATH),
             lines=fields.lines("lines"),
-            commit=fields.text("commit", optional=True),
+            commit=fields.text("commit", optional=True, pattern=cls.COMMIT_PATTERN),
         )
 
 
@@ -98,7 +135,7 @@ class Comment:
 
     FORMAT_VERSION = 1
     STATUSES = ("open", "resolved")
-    ID_PATTERN = re.compile(r"^[A-Za-z0-9_-]{1,64}$")
+    ID_PATTERN = re.compile(r"[A-Za-z0-9_-]{1,64}")
 
     id: str
     thread: str | None
@@ -128,7 +165,7 @@ class Comment:
         comment_id = fields.text("id")
         thread = fields.text("thread", optional=True)
         for value in (comment_id, thread):
-            if value is not None and not cls.ID_PATTERN.match(value):
+            if value is not None and not cls.ID_PATTERN.fullmatch(value):
                 raise CommentFormatError(f"invalid comment id {value!r}")
         status = fields.text("status", optional=True)
         if status is not None and status not in cls.STATUSES:
@@ -191,6 +228,7 @@ class CommentStore:
     """All comment threads, read from a git revision and grouped by page."""
 
     DIRECTORY = "comments"
+    MAX_FILE_SIZE = 64 * 1024
 
     def __init__(self, threads: list[Thread], revision: str | None) -> None:
         """Hold already loaded threads.
@@ -241,11 +279,21 @@ class CommentStore:
             if not path.endswith(".json"):
                 continue
             try:
-                comments.append(Comment.from_json(json.loads(content)))
-            except (ValueError, UnicodeDecodeError) as error:
-                logger.info("sphinx-redline: skipping %s: %s", path, error)
+                comments.append(cls._parse_file(path, content))
+            except (ValueError, UnicodeDecodeError, RecursionError) as error:
+                logger.info("sphinx-redline: skipping %r: %s", path, error)
         logger.info("sphinx-redline: loaded %d comments from %s", len(comments), ref)
         return cls(cls._build_threads(comments), revision)
+
+    @classmethod
+    def _parse_file(cls, path: str, content: bytes) -> Comment:
+        if len(content) > cls.MAX_FILE_SIZE:
+            raise CommentFormatError(f"larger than {cls.MAX_FILE_SIZE} bytes")
+        comment = Comment.from_json(json.loads(content))
+        # One file per id: a second file cannot replace an existing comment.
+        if path != f"{cls.DIRECTORY}/{comment.id}.json":
+            raise CommentFormatError(f"file name does not match comment id {comment.id!r}")
+        return comment
 
     @staticmethod
     def _build_threads(comments: list[Comment]) -> list[Thread]:

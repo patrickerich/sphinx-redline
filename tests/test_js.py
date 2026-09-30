@@ -42,7 +42,7 @@ def test_browser_comments_are_valid_for_the_build() -> None:
     output = run_node(
         """
         const anchor = {docname: "index", source: "docs/index.rst", lines: [3, 4],
-                        commit: "abc", quote: "q", prefix: "p", suffix: "s"};
+                        commit: "abc1234", quote: "q", prefix: "p", suffix: "s"};
         const thread = R.CommentFactory.thread(anchor, "Ann", "guest", "Hi\\nthere");
         const reply = R.CommentFactory.reply(thread.id, "Bob", "gitlab:bob", "Ok", "resolved");
         console.log(JSON.stringify([thread, reply].map(R.CommentFactory.serialize)));

@@ -64,6 +64,8 @@ class CommentAnchorer:
     """
 
     FUZZY_THRESHOLD = 0.8
+    # Approximate matching is quadratic; longer quotes only match exactly.
+    FUZZY_MAX_QUOTE = 1000
     CONTEXT_LENGTH = 32
 
     def __init__(self, repo: GitRepository | None) -> None:
@@ -139,6 +141,8 @@ class CommentAnchorer:
 
     def _fuzzy_matches(self, anchor: Anchor, blocks: list[Block]) -> list[_Match]:
         quote = anchor.quote
+        if len(quote) > self.FUZZY_MAX_QUOTE:
+            return []
         slack = max(4, len(quote) // 4)
         matches = []
         for block in blocks:

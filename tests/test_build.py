@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 from conftest import GitProject, comment, page_data
@@ -129,3 +130,17 @@ def test_new_comment_rebuilds_unchanged_page(git_project: GitProject, build) -> 
     git_project.add_comment(comment("t1", "some words"))
     app = build(git_project.srcdir, redline_comments_ref="redline")
     assert [t["id"] for t in page_data(app)["threads"]] == ["t1"]
+
+
+def test_hostile_comment_files_are_skipped(git_project: GitProject, build) -> None:
+    setup_project(git_project)
+    git_project.add_comment(comment("t1", "some words"))
+    # Same id under another file name must not replace t1.
+    impostor = {**comment("t1", "First paragraph"), "body": "impostor"}
+    git_project.add_comment(impostor, name="t1-copy.json")
+    git_project.add_comment(b"[" * 100_000 + b"]" * 100_000, name="deep.json")
+    git_project.add_comment(json.dumps(comment("t2", "words")).encode(), name="new\nline.json")
+    app = build(git_project.srcdir, redline_comments_ref="redline")
+    assert not app.warning.getvalue()
+    threads = page_data(app)["threads"]
+    assert [(t["id"], t["comments"][0]["body"]) for t in threads] == [("t1", "A comment.")]

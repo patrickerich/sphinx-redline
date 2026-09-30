@@ -600,7 +600,10 @@
     }
 
     get _pendingKey() {
-      return `${RedlineApp.PENDING_KEY}:${this.data.docname}`;
+      // Per site and page: several sites can share one origin (and one tab).
+      const site = new URL(this._contentRoot(), this.doc.defaultView.location.href).href;
+      const target = this.forge ? `${this.forge.repository}@${this.forge.branch}` : "";
+      return `${RedlineApp.PENDING_KEY}:${site}:${target}:${this.data.docname}`;
     }
 
     get user() {

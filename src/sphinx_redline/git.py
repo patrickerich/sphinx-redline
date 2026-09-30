@@ -112,10 +112,18 @@ class DiffIndex:
         """
         files: dict[str, FileDiff] = {}
         current: FileDiff | None = None
+        in_hunks = False
         for line in text.splitlines():
             if line.startswith("diff --git "):
                 current = FileDiff(old_path=None, new_path=None)
+                in_hunks = False
             elif current is None:
+                continue
+            elif in_hunks:
+                # Content lines: only a new hunk header matters here. A content
+                # line may itself look like "+++ ..." or "rename to ...".
+                if (match := cls._HUNK.match(line)) is not None:
+                    current.hunks.append(cls._hunk(match))
                 continue
             elif line.startswith("rename from "):
                 current.old_path = line[len("rename from "):]
@@ -130,19 +138,22 @@ class DiffIndex:
                 if current.old_path is not None:
                     files[current.old_path] = current
             elif (match := cls._HUNK.match(line)) is not None:
-                old_start, old_count, new_start, new_count = match.groups()
-                current.hunks.append(
-                    Hunk(
-                        old_start=int(old_start),
-                        old_count=1 if old_count is None else int(old_count),
-                        new_start=int(new_start),
-                        new_count=1 if new_count is None else int(new_count),
-                    )
-                )
+                current.hunks.append(cls._hunk(match))
+                in_hunks = True
             # A pure rename has no ---/+++ lines; record it once both paths are known.
             if current is not None and current.old_path and line.startswith("rename to "):
                 files[current.old_path] = current
         return cls(files)
+
+    @staticmethod
+    def _hunk(match: re.Match[str]) -> Hunk:
+        old_start, old_count, new_start, new_count = match.groups()
+        return Hunk(
+            old_start=int(old_start),
+            old_count=1 if old_count is None else int(old_count),
+            new_start=int(new_start),
+            new_count=1 if new_count is None else int(new_count),
+        )
 
     def file(self, path: str) -> FileDiff | None:
         """Return the diff for a path of the old commit, or ``None`` if unchanged."""
@@ -240,17 +251,26 @@ class GitRepository:
         Raises:
             GitError: If git cannot list or read the files.
         """
-        listing = self._run("ls-tree", "-r", "-z", "--name-only", rev, "--", f"{directory}/")
+        listing = self._run("ls-tree", "-r", "-z", rev, "--", f"{directory}/")
         if listing.returncode != 0:
             raise GitError(listing.stderr.decode().strip())
-        paths = [p for p in listing.stdout.decode().split("\0") if p]
-        if not paths:
+        blobs: dict[str, str] = {}
+        for entry in listing.stdout.decode(errors="replace").split("\0"):
+            if not entry:
+                continue
+            meta, path = entry.split("\t", 1)
+            _mode, kind, object_id = meta.split(" ")
+            if kind == "blob":
+                blobs[path] = object_id
+        if not blobs:
             return {}
-        request = "".join(f"{rev}:{path}\n" for path in paths).encode()
+        # Request objects by id: paths may contain newlines, which would
+        # break cat-file's line-based input.
+        request = "".join(f"{object_id}\n" for object_id in blobs.values()).encode()
         batch = self._run("cat-file", "--batch", stdin=request)
         if batch.returncode != 0:
             raise GitError(batch.stderr.decode().strip())
-        return dict(zip(paths, self._split_batch(batch.stdout), strict=True))
+        return dict(zip(blobs, self._split_batch(batch.stdout), strict=True))
 
     @staticmethod
     def _split_batch(output: bytes) -> list[bytes]:

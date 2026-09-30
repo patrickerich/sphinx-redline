@@ -57,16 +57,19 @@ class GitProject:
         self.git("commit", "-q", "-m", message)
         return self.git("rev-parse", "HEAD")
 
-    def add_comment(self, data: dict[str, Any] | bytes, branch: str = "redline") -> None:
+    def add_comment(
+        self, data: dict[str, Any] | bytes, branch: str = "redline", name: str | None = None
+    ) -> None:
         """Commit a comment file to ``branch`` without touching the working tree."""
         content = data if isinstance(data, bytes) else json.dumps(data).encode()
-        name = f"c{len(self._comments)}.json" if isinstance(data, bytes) else f"{data['id']}.json"
+        if name is None:
+            name = f"c{len(self._comments)}.json" if isinstance(data, bytes) else f"{data['id']}.json"
         self._comments[name] = content
         entries = "".join(
-            f"100644 blob {self.git('hash-object', '-w', '--stdin', stdin=blob)}\t{file}\n"
+            f"100644 blob {self.git('hash-object', '-w', '--stdin', stdin=blob)}\t{file}\0"
             for file, blob in sorted(self._comments.items())
         )
-        comments_tree = self.git("mktree", stdin=entries.encode())
+        comments_tree = self.git("mktree", "-z", stdin=entries.encode())
         root_tree = self.git("mktree", stdin=f"040000 tree {comments_tree}\tcomments\n".encode())
         parent = subprocess.run(
             ["git", "rev-parse", "--verify", "--quiet", f"refs/heads/{branch}"],
