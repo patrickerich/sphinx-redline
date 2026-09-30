@@ -1,0 +1,24 @@
+name: rebuild-docs
+
+# A push to this branch is a new comment. Workflows run from the branch that
+# was pushed, and this branch has no docs, so start the docs workflow on the
+# default branch instead. workflow_dispatch is one of the few events the
+# GITHUB_TOKEN may trigger.
+on:
+  push:
+    branches:
+      - redline
+
+permissions:
+  actions: write
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Start the docs build
+        run: gh workflow run docs.yml --repo "$GITHUB_REPOSITORY" --ref "$DEFAULT_BRANCH"
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
