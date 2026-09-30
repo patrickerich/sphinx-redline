@@ -3,7 +3,7 @@
 > **Experimental — not yet recommended for real documentation projects.**
 > Commenting works end to end on GitHub and can be tried out on a fork, but
 > the project is new, not yet on PyPI, and its settings may still change.
-> GitLab support and Markdown sources are untested against real setups. See
+> GitLab support is untested against a real GitLab instance. See
 > the [roadmap](https://patrickerich.github.io/sphinx-redline/roadmap.html).
 
 A Sphinx extension for Word-style review comments on your documentation.

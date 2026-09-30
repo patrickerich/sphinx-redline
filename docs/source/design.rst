@@ -133,5 +133,5 @@ Limits
    problem and are not planned yet.
 -  A comment stays on the page (``docname``) it was made on. If a page is
    renamed, its comments are no longer shown.
--  Markdown sources (MyST) should work, since the extension only uses the
-   source positions Sphinx records, but have not been tested yet.
+-  Markdown sources work through MyST (``myst-parser``); the extension uses
+   the source positions MyST records, and this is covered by tests.

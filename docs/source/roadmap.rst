@@ -17,12 +17,12 @@ Done
 -  Guest passphrase sign-in and saving comments to GitHub and GitLab.
 -  "Sign in with GitLab" (OAuth with PKCE), with unit tests.
 -  A live example comment and the :doc:`fork_tutorial`.
+-  Markdown sources (MyST), covered by tests.
 
 Next
 ----
 
 -  Try "Sign in with GitLab" and guest mode against a real GitLab instance.
--  Test with Markdown sources (MyST).
 -  Keep comments when a page is renamed.
 -  A first release on PyPI.
 

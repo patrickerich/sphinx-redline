@@ -131,11 +131,18 @@ class BlockCollector:
         except ValueError:
             return None
 
-    @staticmethod
-    def _line_range(node: nodes.Element) -> tuple[int, int]:
+    MARKDOWN_SUFFIXES = (".md", ".markdown")
+
+    @classmethod
+    def _line_range(cls, node: nodes.Element) -> tuple[int, int]:
         first = node.line
-        count = max(1, node.rawsource.count("\n") + 1) if node.rawsource else 1
-        if isinstance(node, nodes.title) and first > 1:
-            # docutils reports a section title at its underline.
+        count = max(1, node.rawsource.rstrip("\n").count("\n") + 1) if node.rawsource else 1
+        markdown = (node.source or "").endswith(cls.MARKDOWN_SUFFIXES)
+        if isinstance(node, nodes.title) and first > 1 and not markdown:
+            # reStructuredText reports a section title at its underline;
+            # MyST reports a Markdown heading at its own line.
             return first - 1, first
+        if isinstance(node, nodes.literal_block) and markdown:
+            # MyST reports a code fence at its opening line; the code follows.
+            return first, first + count
         return first, first + count - 1

@@ -144,3 +144,48 @@ def test_hostile_comment_files_are_skipped(git_project: GitProject, build) -> No
     assert not app.warning.getvalue()
     threads = page_data(app)["threads"]
     assert [(t["id"], t["comments"][0]["body"]) for t in threads] == [("t1", "A comment.")]
+
+
+MARKDOWN = """\
+# Markdown Page
+
+Intro paragraph with some words.
+
+## Section
+
+```{note}
+A note in Markdown.
+```
+
+```python
+print("hello")
+```
+"""
+
+
+def test_markdown_sources(git_project: GitProject, build) -> None:
+    git_project.write("conf.py", "")
+    git_project.write("index.md", MARKDOWN)
+    commit = git_project.commit()
+    git_project.add_comment(
+        comment("t1", "some words", source="docs/index.md", lines=[3, 3], commit=commit)
+    )
+    git_project.write("index.md", MARKDOWN.replace("# Markdown Page\n", "# Markdown Page\n\nNew.\n"))
+    git_project.commit()
+
+    app = build(
+        git_project.srcdir,
+        extensions=["myst_parser", "sphinx_redline"],
+        redline_comments_ref="redline",
+    )
+    assert not app.warning.getvalue()
+    data = page_data(app)
+    lines = {b["lines"][0]: b["lines"] for b in data["blocks"].values()}
+    assert lines[1] == [1, 1]  # heading: its own line, not the line above
+    assert lines[7] == [7, 7]  # "## Section"
+    assert lines[10] == [10, 10]  # note body
+    assert lines[13] == [13, 14]  # code fence: opening line and the code
+    (thread,) = data["threads"]
+    placement = thread["placement"]
+    assert placement["state"] == "anchored"
+    assert data["blocks"][placement["block"]]["lines"] == [5, 5]
