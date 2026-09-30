@@ -1,0 +1,60 @@
+name: test
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/**'
+      - 'tests/**'
+      - 'pyproject.toml'
+      - 'requirements.txt'
+      - 'sourceme.sh'
+      - 'Makefile'
+      - '.github/workflows/test.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'src/**'
+      - 'tests/**'
+      - 'pyproject.toml'
+      - 'requirements.txt'
+      - 'sourceme.sh'
+      - 'Makefile'
+      - '.github/workflows/test.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        # 3.12 is the lowest version pyproject.toml allows; 3.13 is the local
+        # development default in sourceme.sh.
+        python-version: ['3.12', '3.13']
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+          cache-dependency-path: |
+            requirements.txt
+            pyproject.toml
+
+      # PYTHON=python makes sourceme.sh build .venv from the interpreter
+      # setup-python just installed, not its python3.13 default.
+      - name: Run tests
+        shell: bash
+        run: |
+          PYTHON=python source ./sourceme.sh
+          make test

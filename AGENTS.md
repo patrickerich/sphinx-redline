@@ -29,6 +29,7 @@ versions in `requirements.txt` are used even if another venv is active.
   `setup(app)` entry point Sphinx calls, and they delegate straight to a class.
 - Python 3.12+ (Sphinx 9.1 requires it), PEP 8, 100-column lines, type hints on
   every signature, docstrings with arguments and return values.
+- No SPDX license headers in source files; `LICENSE` (Apache-2.0) covers the repo.
 - Tests use pytest with Sphinx's own fixtures (`sphinx.testing.fixtures`); each
   test project lives in `tests/roots/test-<name>/`.
 
@@ -40,7 +41,7 @@ versions in `requirements.txt` are used even if another venv is active.
 | `tests/`               | pytest suite; `tests/roots/test-*/` are Sphinx test projects |
 | `docs/source/`         | This project's documentation, built with the extension enabled |
 | `docs/build/`          | Build output (ignored by git)                         |
-| `.github/workflows/`   | `docs.yml`: build docs on PRs, publish to GitHub Pages on `main` |
+| `.github/workflows/`   | `test.yml`: pytest on Python 3.12 and 3.13; `docs.yml`: build docs on PRs, publish to GitHub Pages on `main` |
 | `pyproject.toml`       | Package metadata and runtime dependencies             |
 | `requirements.txt`     | Development environment: editable install plus pinned tools |
 | `sourceme.sh`          | Creates and activates the project `.venv`             |
