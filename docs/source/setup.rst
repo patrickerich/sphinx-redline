@@ -160,9 +160,13 @@ their choice.
 
    -  On GitHub, a fine-grained token cannot be limited to one branch. If the
       comments branch is in the documentation repository itself, the token
-      can also push to your other branches. Use a separate comments
-      repository, or protect the other branches with a ruleset that the
-      token's owner cannot bypass.
+      can also push to your other branches. Either use a separate comments
+      repository, or protect the default branch with a ruleset that has an
+      empty bypass list: rulesets apply to the repository owner, and so to
+      the owner's tokens, unless the owner is on that list. A second ruleset
+      that blocks force pushes and deletion of the comments branch keeps a
+      token holder from erasing comments, while still allowing new ones.
+      This repository uses the second approach.
    -  On GitLab, the default branch is protected against Developer pushes by
       default, so a project token with the Developer role can only push to
       unprotected branches such as the comments branch.
