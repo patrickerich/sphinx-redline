@@ -137,6 +137,7 @@ async function main() {
       toggle: document.querySelector(".redline-toggle").textContent,
       outdated: Array.from(document.querySelectorAll(".redline-thread")).filter(c => !Redline.app.threads.find(t => t.id === c.dataset.thread).located).map(c => c.dataset.thread),
       bodyHtml: document.querySelector('.redline-thread[data-thread="t1"] .redline-body').innerHTML,
+      panelText: document.querySelector(".redline-panel").textContent,
       sourceLink: document.querySelector('.redline-thread[data-thread="t1"] .redline-meta a')?.href ?? null,
     })`);
 
@@ -169,6 +170,7 @@ async function main() {
     })()`);
     await page.waitFor(`document.querySelector(".redline-status")?.textContent.includes("Comment saved")`);
     out.afterSave = await page.eval(`({
+      panelText: document.querySelector(".redline-panel").textContent,
       marks: document.querySelectorAll("mark.redline-mark").length,
       pendingLabel: Array.from(document.querySelectorAll(".redline-meta")).some(m => m.textContent.includes("not yet built")),
     })`);

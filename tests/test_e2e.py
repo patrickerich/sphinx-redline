@@ -119,6 +119,9 @@ def test_comment_ui_end_to_end(served_site) -> None:
     assert initial["toggle"] == "Comments (2)"
     assert initial["outdated"] == ["t2"]
     assert "&lt;img" in initial["bodyHtml"]
+    # Skipped parts of the panel must not show up as the text "null".
+    assert "null" not in initial.pop("panelText")
+    assert "null" not in out["afterSave"].pop("panelText")
     head = project.git("rev-parse", "HEAD")
     assert initial["sourceLink"] == f"https://github.com/owner/docs/blob/{head}/docs/index.rst#L6-L6"
     assert out["panelOpenedByMark"] and out["addButtonShown"]

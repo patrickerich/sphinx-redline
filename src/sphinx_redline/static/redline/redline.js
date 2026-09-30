@@ -1001,7 +1001,8 @@
       this.toggle.textContent = open ? `Comments (${open})` : "Comments";
       const located = this.threads.filter((t) => t.located);
       const outdated = this.threads.filter((t) => !t.located);
-      this.content.replaceChildren(
+      // replaceChildren() would turn a skipped (null) part into the text "null".
+      const parts = [
         this._authView(),
         this.draftAnchor ? this._draftView() : null,
         located.length || outdated.length || this.draftAnchor
@@ -1020,8 +1021,9 @@
               textContent: "The text these comments were made on has changed or moved.",
             })
           : null,
-        ...outdated.map((t) => this._threadView(t))
-      );
+        ...outdated.map((t) => this._threadView(t)),
+      ];
+      this.content.replaceChildren(...parts.filter(Boolean));
     }
 
     _button(label, onClick, className) {
