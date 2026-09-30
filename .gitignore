@@ -33,3 +33,7 @@ docs/build/
 # Local scratch
 temp/
 tmp/
+
+# Local GitLab test instance settings (tests/gitlab/gitlab.sh)
+.gitlab-test.env
+.gitlab-test.env.partial

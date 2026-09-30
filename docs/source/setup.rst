@@ -184,8 +184,9 @@ login page, and their comments carry their GitLab name.
 
 .. note::
 
-   This mode has unit tests but has not yet been tried against a real GitLab
-   instance. Please report how it works for you.
+   This mode, and guest mode on GitLab, are tested against a local GitLab CE
+   (version 19.4), but not yet on gitlab.com or in production use. Please
+   report how it works for you.
 
 #. In GitLab, create an OAuth application (User settings → Applications, or
    for a group: Group settings → Applications):

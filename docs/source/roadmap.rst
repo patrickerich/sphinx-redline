@@ -15,14 +15,15 @@ Done
    text is gone as outdated.
 -  Browser UI: highlights, comment panel, new comments, replies, resolving.
 -  Guest passphrase sign-in and saving comments to GitHub and GitLab.
--  "Sign in with GitLab" (OAuth with PKCE), with unit tests.
+-  "Sign in with GitLab" (OAuth with PKCE).
+-  Both GitLab sign-in modes tested end to end against a local GitLab CE.
 -  A live example comment and the :doc:`fork_tutorial`.
 -  Markdown sources (MyST), covered by tests.
 
 Next
 ----
 
--  Try "Sign in with GitLab" and guest mode against a real GitLab instance.
+-  Try both GitLab sign-in modes on gitlab.com and in real use.
 -  Keep comments when a page is renamed.
 -  A first release on PyPI.
 
