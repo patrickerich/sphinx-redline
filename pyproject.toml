@@ -7,6 +7,8 @@ name = "sphinx-redline"
 version = "0.1.0.dev0"
 description = "Sphinx extension for inline review comments anchored to the RST/Markdown source"
 readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
 # Sphinx 9.1 itself requires Python 3.12. The lower bounds follow the versions
 # that are actually tested; relax them once CI covers older releases.
 requires-python = ">=3.12"
