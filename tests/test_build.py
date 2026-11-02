@@ -60,6 +60,7 @@ def test_comments_are_placed_and_follow_edits(git_project: GitProject, build) ->
 
     app = build(git_project.srcdir, redline_comments_ref="redline")
     assert not app.warning.getvalue()
+    assert page_data(app)["commentsRevision"] == git_project.git("rev-parse", "redline")
     threads = {t["id"]: t for t in page_data(app)["threads"]}
     moved = threads["t1"]["placement"]
     assert moved["state"] == "anchored"

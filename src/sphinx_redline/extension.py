@@ -199,6 +199,9 @@ class RedlineExtension:
             "version": self.PAGE_FORMAT_VERSION,
             "docname": docname,
             "commit": self._head,
+            # Lets the browser tell a newer build from the one a comment was
+            # saved on, to forget local copies of comments that were removed.
+            "commentsRevision": self._store.revision,
             "sourceUrl": app.config.redline_source_url,
             "forge": None if self._forge is None else self._forge.to_page_json(),
             "blocks": {b.id: b.to_page_json() for b in blocks},
