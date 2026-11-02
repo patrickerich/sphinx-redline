@@ -5,59 +5,86 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>sphinx-redline guest key tool</title>
 <style>
-  :root { color-scheme: light dark; --fg: #1f2328; --bg: #fff; --muted: #59636e; --border: #d0d7de; --accent: #0969da; --error: #cf222e; }
+  :root { color-scheme: light dark; --fg: #1f2328; --bg: #fff; --panel: #f6f8fa; --muted: #59636e; --border: #d0d7de; --accent: #0969da; --error: #cf222e; --in: #9a6700; --out: #1a7f37; }
   @media (prefers-color-scheme: dark) {
-    :root { --fg: #e6edf3; --bg: #0d1117; --muted: #9198a1; --border: #3d444d; --accent: #4493f8; --error: #ff7b72; }
+    :root { --fg: #e6edf3; --bg: #0d1117; --panel: #161b22; --muted: #9198a1; --border: #3d444d; --accent: #4493f8; --error: #ff7b72; --in: #d29922; --out: #3fb950; }
   }
   body { font: 16px/1.5 system-ui, sans-serif; color: var(--fg); background: var(--bg); max-width: 42rem; margin: 2rem auto; padding: 0 1rem; }
-  label { display: block; font-weight: 600; margin-top: 1rem; }
+  h1 { margin-bottom: 0.25rem; }
+  h2 { font-size: 1.1rem; margin: 0 0 0.5rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+  .num { display: inline-flex; justify-content: center; align-items: center; width: 1.6rem; height: 1.6rem; border-radius: 50%; background: var(--accent); color: #fff; font-size: 0.9rem; }
+  .tag { font-size: 0.75rem; font-weight: 600; padding: 0.05rem 0.5rem; border-radius: 999px; border: 1px solid; }
+  .tag.in { color: var(--in); }
+  .tag.out { color: var(--out); }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0 1.5rem; font-size: 0.95rem; }
+  th, td { text-align: left; padding: 0.4rem 0.5rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .step, .result { border: 1px solid var(--border); border-radius: 0.5rem; padding: 1rem; margin: 1rem 0; background: var(--panel); }
+  .result { border: 2px solid var(--out); }
   input, textarea { font: inherit; width: 100%; box-sizing: border-box; padding: 0.4rem; border: 1px solid var(--border); border-radius: 0.3rem; background: var(--bg); color: var(--fg); }
   textarea { font-family: ui-monospace, monospace; font-size: 0.85rem; }
-  button { font: inherit; margin-top: 0.75rem; padding: 0.4rem 1rem; border-radius: 0.3rem; border: 1px solid var(--accent); background: var(--accent); color: #fff; cursor: pointer; }
-  button.secondary { background: var(--bg); color: var(--accent); }
-  .hint { color: var(--muted); font-size: 0.9rem; margin: 0.25rem 0; }
+  button { font: inherit; padding: 0.4rem 1rem; border-radius: 0.3rem; border: 1px solid var(--accent); background: var(--accent); color: #fff; cursor: pointer; }
+  button.link { border: none; background: none; color: var(--accent); padding: 0; text-decoration: underline; }
+  .hint { color: var(--muted); font-size: 0.9rem; margin: 0.4rem 0 0; }
+  .note { margin: 0.5rem 0 0; font-weight: 600; }
   .error { color: var(--error); }
-  .row { display: flex; gap: 0.5rem; align-items: end; }
-  .row input { flex: 1; }
+  details { margin: 1.5rem 0; color: var(--muted); font-size: 0.9rem; }
 </style>
 </head>
 <body>
 <h1>Guest key tool</h1>
 <p>
-  Encrypts a GitHub or GitLab token with a passphrase, for the
-  <code>redline_guest_key</code> setting of sphinx-redline. Guests who know
-  the passphrase can then comment on your documentation.
+  Fill in <strong>two things you already have</strong>, and this page makes the
+  <strong>guest key</strong> that lets guests comment on your sphinx-redline site.
 </p>
-<p class="hint">
-  Everything happens in this page: the token and passphrase are not sent
-  anywhere. The resulting key is published in every page of your site, so
-  anyone can try to guess the passphrase offline. Use a long one, and a token
-  that can only write to the comments repository.
-</p>
+
+<table>
+  <tr><th></th><th>Where it comes from</th><th>What to do with it</th></tr>
+  <tr><td><strong>Token</strong></td><td><span class="tag in">you fill in</span> from GitHub or GitLab</td><td>Keep it secret</td></tr>
+  <tr><td><strong>Passphrase</strong></td><td><span class="tag in">you fill in</span> you choose it</td><td>Give it to the people who may comment</td></tr>
+  <tr><td><strong>Guest key</strong></td><td><span class="tag out">this page makes it</span> from the two above</td><td>Put it in your site's settings; safe to share</td></tr>
+</table>
 
 <form id="create">
-  <label for="token">Token</label>
-  <input id="token" type="password" required autocomplete="off" placeholder="github_pat_… or glpat-…">
-  <p class="hint">A fine-grained GitHub token with <em>Contents: read and write</em> on the comments repository only, or a GitLab project access token with the <em>api</em> scope and the Developer role.</p>
+  <section class="step">
+    <h2><span class="num">1</span> Your token <span class="tag in">you fill in</span></h2>
+    <input id="token" type="password" required autocomplete="off" placeholder="github_pat_… or glpat-…" aria-label="Token">
+    <p class="hint">The token GitHub or GitLab gave you. On GitHub: a fine-grained token with
+      <em>Contents: read and write</em> on the comments repository only. On GitLab: a project
+      access token with the <em>Developer</em> role and the <em>api</em> scope.</p>
+  </section>
 
-  <label for="passphrase">Passphrase</label>
-  <div class="row">
-    <input id="passphrase" type="text" required minlength="16" autocomplete="off">
-    <button type="button" class="secondary" id="generate">Generate</button>
-  </div>
-  <p class="hint">At least 16 characters. Share it with the people who may comment.</p>
+  <section class="step">
+    <h2><span class="num">2</span> Your passphrase <span class="tag in">you fill in</span></h2>
+    <input id="passphrase" type="text" required minlength="16" autocomplete="off" aria-label="Passphrase">
+    <p class="hint">What commenters type to sign in; at least 16 characters.
+      <strong>Renewing a token? Type your current passphrase</strong>, so commenters can keep using it.</p>
+    <p class="hint">No passphrase yet? <button type="button" class="link" id="generate">Suggest a random one</button></p>
+    <p id="suggested" class="note" hidden>Write this passphrase down: commenters need it, and it cannot be recovered from the key.</p>
+  </section>
 
-  <button type="submit">Create guest key</button>
+  <section class="step">
+    <h2><span class="num">3</span> Make the key</h2>
+    <button type="submit">Create guest key</button>
+    <p id="status" class="hint" role="status"></p>
+  </section>
 </form>
 
-<div id="result" hidden>
-  <label for="key">Guest key</label>
-  <textarea id="key" rows="4" readonly></textarea>
-  <p class="hint">Put it in <code>conf.py</code>, for example
-    <code>redline_guest_key = os.environ.get("REDLINE_GUEST_KEY")</code> with the key stored as a
-    CI variable. It is safe to publish, as long as the passphrase is strong.</p>
-</div>
-<p id="status" class="hint" role="status"></p>
+<section id="result" class="result" hidden>
+  <h2>Your guest key <span class="tag out">made by this page</span></h2>
+  <textarea id="key" rows="4" readonly aria-label="Guest key"></textarea>
+  <p><button type="button" id="copy">Copy key</button></p>
+  <p class="hint">Put this key in your site's settings: the <code>REDLINE_GUEST_KEY</code> CI
+    variable, read in <code>conf.py</code> as
+    <code>redline_guest_key = os.environ.get("REDLINE_GUEST_KEY")</code>. The key is safe to
+    share; the token and passphrase are not.</p>
+</section>
+
+<details>
+  <summary>Is this safe?</summary>
+  <p>Everything happens in this page: the token and passphrase are not sent anywhere. The key
+    is published in every page of your site, so anyone can try to guess the passphrase offline.
+    Use a long passphrase, and a token that can only write to the comments.</p>
+</details>
 
 <script src="redline.js"></script>
 <script>
@@ -73,10 +100,12 @@
     const bytes = Redline.Bytes.random(24);
     const chars = Array.from(bytes, (b) => alphabet[b % alphabet.length]).join("");
     $("passphrase").value = chars.match(/.{6}/g).join("-");
+    $("suggested").hidden = false;
   });
 
   $("create").addEventListener("submit", async (event) => {
     event.preventDefault();
+    $("result").hidden = true;
     status("Encrypting… (this takes a moment on purpose)");
     try {
       const token = $("token").value.trim();
@@ -87,9 +116,21 @@
       }
       $("key").value = key;
       $("result").hidden = false;
-      status("Done. The key was checked by decrypting it again.");
+      status("Done: your guest key is below.");
+      $("result").scrollIntoView({ behavior: "smooth", block: "start" });
     } catch (error) {
       status(`Failed: ${error.message}`, true);
+    }
+  });
+
+  $("copy").addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText($("key").value);
+      $("copy").textContent = "Copied";
+    } catch (error) {
+      // No clipboard access (e.g. opened from file://): select it for Ctrl+C.
+      $("key").select();
+      $("copy").textContent = "Press Ctrl+C to copy";
     }
   });
 </script>

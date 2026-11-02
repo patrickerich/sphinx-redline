@@ -143,9 +143,9 @@ their choice.
 
 #. Open the guest key tool, which is published with every site that uses
    sphinx-redline at ``_static/redline/keytool.html`` (for example
-   `this site's key tool <_static/redline/keytool.html>`_). Enter the token
-   and a passphrase and copy the resulting key. Nothing you enter there is
-   sent anywhere.
+   `this site's key tool <_static/redline/keytool.html>`_). Fill in the
+   token and a passphrase of your choice; the tool makes the guest key from
+   them. Nothing you enter there is sent anywhere.
 
 #. Set the key as ``redline_guest_key``, typically from an environment
    variable set by CI. The key is published in every page, so it may be
@@ -172,9 +172,13 @@ their choice.
       unprotected branches such as the comments branch.
 
    The encrypted key is public, so a short passphrase could be guessed
-   offline. The key tool enforces at least 16 characters; its
-   :guilabel:`Generate` button creates a random one. To revoke guest access,
-   delete the token and publish a new key with a new passphrase.
+   offline. The key tool enforces at least 16 characters and can suggest a
+   random passphrase. To revoke guest access, delete the token and publish a
+   new key with a new passphrase.
+
+   When the token expires or is regenerated, make a new key from the new
+   token and your **current** passphrase, and replace the old key. Commenters
+   then keep using the passphrase they know.
 
 Sign in with GitLab
 ^^^^^^^^^^^^^^^^^^^

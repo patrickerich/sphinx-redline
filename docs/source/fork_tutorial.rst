@@ -65,9 +65,12 @@ Copy the token (it starts with ``github_pat_``).
 -----------------------
 
 Open the `guest key tool <_static/redline/keytool.html>`_ (it runs entirely
-in your browser; the token is not sent anywhere). Paste the token, click
-:guilabel:`Generate` for a passphrase, and click
-:guilabel:`Create guest key`. Keep the passphrase: you need it to comment.
+in your browser; the token is not sent anywhere):
+
+#. Paste the token into step 1.
+#. In step 2, click :guilabel:`Suggest a random one`, or type a passphrase of
+   at least 16 characters. Keep it: you need it to comment.
+#. Click :guilabel:`Create guest key`, then :guilabel:`Copy key`.
 
 In your fork, open :guilabel:`Settings` → :guilabel:`Secrets and variables`
 → :guilabel:`Actions` → :guilabel:`Variables` and add a repository variable
