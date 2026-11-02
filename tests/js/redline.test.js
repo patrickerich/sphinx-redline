@@ -152,3 +152,37 @@ test("a conflicting save is retried, other errors are not", async () => {
   await assert.rejects(R.Forge.create(GITHUB, "tok", counting(422)).createFile("c", "", "m"));
   assert.equal(count, 1);
 });
+
+test("local copies of saved comments are dropped once a newer build lacks them", () => {
+  const values = {};
+  const store = {
+    get: (k) => values[k] ?? null,
+    set: (k, v) => (values[k] = v),
+    remove: (k) => delete values[k],
+  };
+  const doc = { defaultView: { location: { href: "https://docs.example.com/page.html" } }, documentElement: { dataset: {} } };
+  const page = (revision, threads = []) => ({ docname: "page", commentsRevision: revision, forge: GITHUB, threads });
+  const saved = (revision) => {
+    const app = new R.RedlineApp(doc, page(revision));
+    app.session = store;
+    return app;
+  };
+  const thread = { id: "t-new", status: "open", comments: [{ id: "t-new" }], placement: {} };
+
+  // Saved on a page built from comments revision r1.
+  saved("r1")._remember("threads", thread);
+  // Same build again (reload before the rebuild): still shown.
+  assert.deepEqual(saved("r1")._mergePending([]).map((t) => t.id), ["t-new"]);
+  // A newer build that contains it: shown from the build, local copy dropped.
+  saved("r2")._mergePending([{ ...thread }]);
+  assert.deepEqual(saved("r2")._mergePending([]), []);
+
+  // Saved on r1, then removed from the branch: a newer build without it drops it.
+  saved("r1")._remember("threads", { ...thread, id: "t-gone" });
+  assert.deepEqual(saved("r3")._mergePending([]), []);
+
+  // Copies from before revisions were recorded are dropped too.
+  const key = Object.keys(values)[0];
+  values[key] = { threads: [{ ...thread, id: "t-old" }], replies: [] };
+  assert.deepEqual(saved("r3")._mergePending([]), []);
+});

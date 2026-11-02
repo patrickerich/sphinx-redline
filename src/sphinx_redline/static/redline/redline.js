@@ -657,8 +657,14 @@
           known.add(comment.id);
         }
       }
-      pending.threads = pending.threads.filter((t) => !known.has(t.id));
-      pending.replies = pending.replies.filter((r) => !known.has(r.comment.id));
+      // Keep a locally saved comment only until a build has caught up: if it
+      // is in this build, the page shows it anyway; if this build read a
+      // different version of the comments branch and it is still missing,
+      // it was removed. Copies saved without a version predate this check.
+      const revision = this._commentsRevision;
+      const waiting = (entry, id) => !known.has(id) && entry.revision === revision;
+      pending.threads = pending.threads.filter((t) => waiting(t, t.id));
+      pending.replies = pending.replies.filter((r) => waiting(r, r.comment.id));
       this.session.set(this._pendingKey, pending);
       const merged = threads.map((t) => ({ ...t, comments: [...t.comments] }));
       for (const thread of pending.threads) {
@@ -675,8 +681,13 @@
 
     _remember(kind, entry) {
       const pending = this.session.get(this._pendingKey) || { threads: [], replies: [] };
-      pending[kind].push(entry);
+      pending[kind].push({ ...entry, revision: this._commentsRevision });
       this.session.set(this._pendingKey, pending);
+    }
+
+    /** The comments branch commit this page's build read, or null. */
+    get _commentsRevision() {
+      return this.data.commentsRevision ?? null;
     }
 
     _applyReply(thread, comment) {
