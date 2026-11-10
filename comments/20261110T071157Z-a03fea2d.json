@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "id": "20261110T071157Z-a03fea2d",
+  "thread": null,
+  "author": "Patrick",
+  "auth": "guest",
+  "created": "2026-11-10T07:11:57Z",
+  "body": "test comment",
+  "status": null,
+  "anchor": {
+    "docname": "example",
+    "source": "docs/source/example.rst",
+    "lines": [
+      22,
+      26
+    ],
+    "commit": "4b7724de38722cef378240a2532340eacef37e80",
+    "quote": "and records the source",
+    "prefix": "the documentation it refers to, ",
+    "suffix": " file and line numbers the text "
+  }
+}
